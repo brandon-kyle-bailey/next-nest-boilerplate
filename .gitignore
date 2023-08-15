@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+api/node_modules
 /.pnp
 .pnp.js
 
@@ -14,6 +15,7 @@
 
 # production
 /build
+api/dist
 
 # misc
 .DS_Store
@@ -26,6 +28,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+api/.env
 
 # vercel
 .vercel
