@@ -14,9 +14,38 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      console.log("inside signin callback. maybe call api/login here?");
-      console.log(user);
+      const response = await fetch(
+        `${process.env.BACKEND_API_URL}/auth/user/access`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user.email,
+            password: user.email,
+          }),
+        }
+      );
+      const result = await response.json();
+      if (result.status === 401) {
+        throw new Error("Error");
+      }
+      user.access_token = result.access_token;
+      user.refresh_token = result.refresh_token;
       return true;
+    },
+    async jwt({ token, user, account, profile }) {
+      if (user) {
+        token = { ...user };
+      }
+      return token;
+    },
+    async session({ session, user, token }) {
+      session.user = token;
+      console.log(session);
+      return session;
     },
   },
 };
