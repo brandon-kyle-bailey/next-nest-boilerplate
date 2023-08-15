@@ -36,7 +36,9 @@ export class UserRepository implements IUserRepository {
     }
   }
   async create(entity: UserEntity, createdBy: string): Promise<UserOrmModel> {
+    console.log('got here');
     const model = { ...entity, createdBy, createdAt: new Date() };
+    console.log(`create model`, model);
     return await this.repository.save(model);
   }
   async getById(id: string): Promise<UserOrmModel> {

@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class RegisterRequestDto {
+export class UserRegisterDto {
+  @ApiPropertyOptional()
+  accountId?: string;
+
   @ApiProperty()
   email: string;
 

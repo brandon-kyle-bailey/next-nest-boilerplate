@@ -33,12 +33,8 @@ export class UserEntity {
 
   public static async create(props: UserEntityProps, _id?: string) {
     const id = _id || v4();
-    const hashedPwd = await UserEntity.hash(props.password);
-    return new UserEntity({ ...props, password: hashedPwd }, id);
-  }
-
-  public static async hash(input: string): Promise<string> {
-    return await bcrypt.hash(input, process.env.ENCRYPTION_SALT);
+    const hash = await bcrypt.hash(props.password, process.env.ENCRYPTION_SALT);
+    return new UserEntity({ ...props, password: hash }, id);
   }
 
   public static async passwordIsCorrect(

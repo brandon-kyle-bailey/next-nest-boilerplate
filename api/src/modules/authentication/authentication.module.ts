@@ -3,35 +3,45 @@ import { AuthController } from './controller/auth.controller';
 import { AccountModule } from '../account/account.module';
 import { UserModule } from '../user/user.module';
 import { ConfigService } from '@nestjs/config';
-import { LoginUseCase } from './use-case/login/login.use-case';
-import { RegisterUseCase } from './use-case/register/register.use-case';
 import { JwtModule } from '@nestjs/jwt';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { TokenService } from './service/token.service';
+import { AuthenticationService } from './service/authentication.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from '../common/strategy/jwt.strategy';
+import { JwtRefreshStrategy } from '../common/strategy/jwt-refresh.strategy';
 
 const repositories = [];
 const mappers = [];
-const useCases = [LoginUseCase, RegisterUseCase];
+const useCases = [];
+const strategies = [JwtStrategy, JwtRefreshStrategy];
+const services = [TokenService, AuthenticationService];
 const controllers = [AuthController];
 
 @Module({
   imports: [
     AccountModule,
     UserModule,
+    PassportModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '30m' },
     }),
   ],
   providers: [
     ...repositories,
     ...mappers,
     ...useCases,
+    ...strategies,
+    ...services,
     ...controllers,
     ConfigService,
   ],
   controllers,
-  exports: [...repositories, ...mappers, ...useCases, ...controllers],
+  exports: [
+    ...repositories,
+    ...mappers,
+    ...services,
+    ...useCases,
+    ...controllers,
+  ],
 })
 export class AuthenticationModule {}

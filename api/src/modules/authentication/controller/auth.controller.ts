@@ -1,47 +1,53 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
-import { LoginResponseDto } from '../dto/login.response.dto';
-import { LoginRequestDto } from '../dto/login.request.dto';
-import { RegisterRequestDto } from '../dto/register.request.dto';
-import { RegisterResponseDto } from '../dto/register.response.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RegisterUseCase } from '../use-case/register/register.use-case';
-import { LoginUseCase } from '../use-case/login/login.use-case';
+import {
+  Body,
+  Controller,
+  Inject,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { AuthenticationService } from '../service/authentication.service';
+import { UserAccessDto } from '../dto/user.access.request.dto';
+import { UserTokenDto } from '../dto/user.token.dto';
+import { UserRevokeDto } from '../dto/user.revoke.request.dto';
+import { UserRegisterDto } from '../dto/user.register.request.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtRefreshAuthGuard } from '../../common/guards/jwt-auth-refresh.guard';
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(LoginUseCase)
-    readonly loginUseCase: LoginUseCase,
-    @Inject(RegisterUseCase)
-    readonly registerUseCase: RegisterUseCase,
+    @Inject(AuthenticationService)
+    readonly authenticationService: AuthenticationService,
   ) {}
 
-  @ApiResponse({
-    status: 200,
-    description: 'user has been logged in.',
-  })
-  @Post('user/login')
-  async login(@Body() input: LoginRequestDto): Promise<LoginResponseDto> {
-    return await this.loginUseCase.execute({
-      email: input.email,
-      password: input.password,
-    });
+  @Post('user/access')
+  async access(@Body() input: UserAccessDto): Promise<UserTokenDto> {
+    return await this.authenticationService.access(input);
   }
 
-  @ApiResponse({
-    status: 200,
-    description: 'user has been registered.',
-  })
+  @UseGuards(JwtAuthGuard)
+  @Post('user/revoke')
+  async revoke(
+    @Body() input: UserRevokeDto,
+    @Request() req: any,
+  ): Promise<string> {
+    console.log(`req`, req);
+    return await this.authenticationService.revoke(input);
+  }
+
   @Post('user/register')
-  async register(
-    @Body() input: RegisterRequestDto,
-  ): Promise<RegisterResponseDto> {
-    return await this.registerUseCase.execute({
-      name: input.name,
-      email: input.email,
-      password: input.password,
-      image: input.image,
+  async register(@Body() input: UserRegisterDto): Promise<UserTokenDto> {
+    return await this.authenticationService.register(input);
+  }
+
+  @UseGuards(JwtRefreshAuthGuard)
+  @Post('user/refresh')
+  async refresh(
+    @Request() req: { user: { refresh_token: string } },
+  ): Promise<UserTokenDto> {
+    return await this.authenticationService.refresh({
+      refresh_token: req.user.refresh_token,
     });
   }
 }
