@@ -8,7 +8,7 @@ import { UserRepository } from '../../../user/repo/typeorm/repository/user.repos
 import { RegisterUseCaseRequest } from './register.use-case.request';
 import { RegisterUseCaseResponse } from './register.use-case.response';
 import { UserEntity } from '../../../user/domain/entity/user.entity';
-import { NIL, v4 } from 'uuid';
+import { NIL } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AccountRepository } from '../../../account/repo/typeorm/repository/account.repository';
